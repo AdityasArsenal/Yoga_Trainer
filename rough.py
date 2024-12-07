@@ -1,13 +1,38 @@
-mp_pose = mp.solutions.pose
+from PIL import Image
+from transformers import MobileNetV2ImageProcessor,  MobileNetV2ForImageClassification
+import torch
+from loadd_model import model
+import requests
+import io
 
-pose = mp_pose.Pose(static_image_mode = True, min_detection_confidence = 0.3, model_complexity = 2)
+# Provide the path to your uploaded image
+image_path = r"C:\Users\24adi\OneDrive\Desktop\NewFolder\Yoga_Trainer\pp.jpg"
 
-print(type(mp_pose))
+# Open the image
+image = Image.open(image_path)
 
-mp_drawing = mp.solutions.drawing_utils
+# Load the MobileNetV2 image processor
+image_processor = MobileNetV2ImageProcessor.from_pretrained('google/mobilenet_v2_1.0_224')
 
-smpl = cv2.imread('download.jpg')
-plt.figure(figsize=[10,10])
-plt.axis('off')
-plt.imshow(smpl[:,:,::-1])
-plt.show()
+
+# Preprocess the image
+inputs = image_processor(images=image, return_tensors="pt")
+
+model = MobileNetV2ForImageClassification.from_pretrained(
+    "AdityasArsenal/finetuned-for-YogaPoses",
+    num_labels=5  # Replace 3 with the number of classes in your dataset
+)
+
+
+# Make predictions with the trained model
+model.eval()  # Set the model to evaluation mode
+with torch.no_grad():  # Disable gradient calculation
+    outputs = model(**inputs)
+
+# Get the predicted class (max logit)
+predicted_class = torch.argmax(outputs.logits, dim=-1).item()
+names=['Downdog', 'Goddess', 'Plank', 'Tree', 'Warrior2']
+
+# Print the predicted class
+print(f"Predicted class index: {predicted_class}:{names[predicted_class]}")
+
