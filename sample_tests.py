@@ -2,11 +2,9 @@ from PIL import Image
 from transformers import MobileNetV2ImageProcessor
 import torch
 from loadd_model import model
-import requests
-import io
 
 # Provide the path to your uploaded image
-image_path = r"C:\Users\24adi\OneDrive\Desktop\NewFolder\Yoga_Trainer\dd.png"
+image_path = r"C:\Users\24adi\OneDrive\Desktop\NewFolder\Yoga_Trainer\t.jpg"
 
 # Open the image
 image = Image.open(image_path)
@@ -25,6 +23,7 @@ with torch.no_grad():  # Disable gradient calculation
 
 # Get the predicted class (max logit)
 predicted_class = torch.argmax(outputs.logits, dim=-1).item()
+names=['Downdog', 'Goddess', 'Plank', 'Tree', 'Warrior2']
 
 # Print the predicted class
-print(f"Predicted class index: {predicted_class}")
+print(f"Predicted class index: {predicted_class}:{names[predicted_class]}")
