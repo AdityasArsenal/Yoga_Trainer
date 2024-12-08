@@ -1,29 +1,23 @@
-from PIL import Image
-from transformers import MobileNetV2ImageProcessor
-import torch
-from loadd_model import model
+import PIL.Image as Image
+import numpy as np
+import tensorflow_hub as hub
+from tensorflow import keras
 
-# Provide the path to your uploaded image
-image_path = r"C:\Users\24adi\OneDrive\Desktop\NewFolder\Yoga_Trainer\t.jpg"
+model = keras.models.load_model('Pose_model.h5', custom_objects={'KerasLayer': hub.KerasLayer})
 
-# Open the image
-image = Image.open(image_path)
+IMAGE_SHAPE = (224,224)
 
-# Load the MobileNetV2 image processor
-image_processor = MobileNetV2ImageProcessor.from_pretrained('google/mobilenet_v2_1.0_224')
+yoga_pose = Image.open("www.jpg").resize(IMAGE_SHAPE)
+yoga_pose
 
+yoga_pose = np.array(yoga_pose)/255.0
+yoga_pose.shape
 
-# Preprocess the image
-inputs = image_processor(images=image, return_tensors="pt")
+yoga_pose[np.newaxis, ...]
 
-# Make predictions with the trained model
-model.eval()  # Set the model to evaluation mode
-with torch.no_grad():  # Disable gradient calculation
-    outputs = model(**inputs)
+result = model.predict(yoga_pose[np.newaxis, ...])
+result.shape
 
-# Get the predicted class (max logit)
-predicted_class = torch.argmax(outputs.logits, dim=-1).item()
-names=['Downdog', 'Goddess', 'Plank', 'Tree', 'Warrior2']
-
-# Print the predicted class
-print(f"Predicted class index: {predicted_class}:{names[predicted_class]}")
+labs = ['downdog', 'goddess', 'plank', 'tree', 'warror2']
+predicted_label_index = np.argmax(result)
+print(f"{predicted_label_index}:{labs[predicted_label_index]}")

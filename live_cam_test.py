@@ -7,7 +7,7 @@ from loadd_model import model  # Ensure this imports your trained model
 
 # Initialize MediaPipe Pose model
 mp_pose = mp.solutions.pose
-pose = mp_pose.Pose(min_detection_confidence=0.7, min_tracking_confidence=0.7)
+pose = mp_pose.Pose(min_detection_confidence=0.1, min_tracking_confidence=0.1)
 
 # Initialize the MobileNetV2 image processor
 image_processor = MobileNetV2ImageProcessor.from_pretrained('google/mobilenet_v2_1.0_224')

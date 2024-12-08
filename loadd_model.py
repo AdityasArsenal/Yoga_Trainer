@@ -1,11 +1,4 @@
-from transformers import AutoImageProcessor, AutoModelForImageClassification
-from PIL import Image
-import torch
-from torchvision import transforms
+import tensorflow_hub as hub
+from tensorflow import keras
 
-# Specify the custom directory to save/load the model
-custom_dir = r"C:\Users\24adi\OneDrive\Desktop\NewFolder\Yoga_Trainer\model"
-
-# Load model and processor directly from the custom directory
-processor = AutoImageProcessor.from_pretrained("AdityasArsenal/finetuned-for-YogaPoses", cache_dir=custom_dir)
-model = AutoModelForImageClassification.from_pretrained("AdityasArsenal/finetuned-for-YogaPoses", cache_dir=custom_dir)
+model = keras.models.load_model('Pose_model.h5', custom_objects={'KerasLayer': hub.KerasLayer})
