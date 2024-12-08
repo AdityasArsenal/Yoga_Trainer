@@ -7,3 +7,5 @@ tensorflow
 transformers
 torch
 torchvision 
+tensorflow-hub==0.13.0
+tensorflow-hub==0.13.0
