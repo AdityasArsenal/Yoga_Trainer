@@ -1,98 +1,177 @@
+import numpy as np
 import cv2
-import mediapipe as mp
-from PIL import Image
-from transformers import MobileNetV2ImageProcessor
-import torch
-from loadd_model import model  # Ensure this imports your trained model
 
-# Initialize MediaPipe Pose model
-mp_pose = mp.solutions.pose
-pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.9)
+import PIL.Image as Image
+import os
 
-# Initialize the MobileNetV2 image processor
-image_processor = MobileNetV2ImageProcessor.from_pretrained('google/mobilenet_v2_1.0_224')
+import matplotlib.pylab as plt
 
-# Class names for yoga poses
-names = ['Downdog', 'Goddess', 'Plank', 'Tree', 'Warrior2']
+import tensorflow as tf
+import tensorflow_hub as hub
 
-# Pose landmarks connection index (based on MediaPipe Pose output)
-POSE_CONNECTIONS = [
-    (11, 13), (13, 15),  # Left arm (shoulder -> elbow -> wrist)
-    (12, 14), (14, 16),  # Right arm (shoulder -> elbow -> wrist)
-    (11, 12),            # Shoulders connection
-    (23, 25), (25, 27),  # Left leg (hip -> knee -> ankle)
-    (24, 26), (26, 28),  # Right leg (hip -> knee -> ankle)
-    (23, 24),            # Hips connection
-    (0, 1), (1, 2),      # Eyes connection
-    (2, 3),              # Nose to right eye
-    (3, 4),              # Nose to left eye
-    # Add more connections if needed based on your use case.
-]
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.models import Sequential
 
-# Start webcam video capture (0 is typically the default camera)
-cap = cv2.VideoCapture(0)
+IMAGE_SHAPE = (224, 224)
 
-if not cap.isOpened():
-    print("Error: Could not open webcam.")
-    exit()
+classifier = tf.keras.Sequential([
+    hub.KerasLayer("https://tfhub.dev/google/tf2-preview/mobilenet_v2/classification/4", input_shape=IMAGE_SHAPE+(3,))
+])
 
-# Start live video feed
-while True:
-    ret, frame = cap.read()
+yoga_pose = Image.open("yy.jpg").resize(IMAGE_SHAPE)
+yoga_pose
 
-    if not ret:
-        print("Error: Failed to capture frame.")
-        break
+yoga_pose = np.array(yoga_pose)/255.0
+yoga_pose.shape
 
-    # Convert the frame (BGR) to RGB and then to a PIL Image for processing
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    image = Image.fromarray(rgb_frame)
+yoga_pose[np.newaxis, ...]
 
-    # Preprocess the image for pose classification
-    inputs = image_processor(images=image, return_tensors="pt")
+result = classifier.predict(yoga_pose[np.newaxis, ...])
+result.shape
 
-    # Make predictions with the trained model
-    model.eval()  # Set the model to evaluation mode
-    with torch.no_grad():  # Disable gradient calculation
-        outputs = model(**inputs)
+predicted_label_index = np.argmax(result)
+predicted_label_index
 
-    # Get the predicted class (max logit)
-    predicted_class = torch.argmax(outputs.logits, dim=-1).item()
+!wget https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt
 
-    # Process the image for pose landmarks with MediaPipe
-    results = pose.process(rgb_frame)
 
-    # Draw pose landmarks
-    if results.pose_landmarks:
-        for landmark in results.pose_landmarks.landmark:
-            # Convert normalized landmark to pixel coordinates
-            h, w, _ = frame.shape
-            x, y = int(landmark.x * w), int(landmark.y * h)
-            cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)  # Draw green circle at each landmark
-        
-        # Draw lines between landmarks based on POSE_CONNECTIONS
-        for connection in POSE_CONNECTIONS:
-            start_idx, end_idx = connection
-            start_landmark = results.pose_landmarks.landmark[start_idx]
-            end_landmark = results.pose_landmarks.landmark[end_idx]
+image_labels = []
+with open("ImageNetLabels.txt", "r") as f:
+    image_labels = f.read().splitlines()
+image_labels[:5]
 
-            # Convert normalized coordinates to pixel coordinates
-            start_x, start_y = int(start_landmark.x * w), int(start_landmark.y * h)
-            end_x, end_y = int(end_landmark.x * w), int(end_landmark.y * h)
+image_labels[predicted_label_index]
 
-            # Draw the line
-            cv2.line(frame, (start_x, start_y), (end_x, end_y), (0, 255, 0), 2)  # Green line
+%%capture
+!sudo apt -qq install git-lfs
+!git config --global credential.helper store
 
-    # Display the predicted class on the video frame
-    cv2.putText(frame, f"Predicted Pose: {names[predicted_class]}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+#Mount your google drive
+from google.colab import drive
+drive.mount('/content/drive')
 
-    # Show the video frame with pose landmarks and lines
-    cv2.imshow('Yoga Pose Detection with Landmarks', frame)
+!ls -al "/content/drive/MyDrive/yoga-poses-dataset.zip"
 
-    # Break the loop if the user presses the 'q' key
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+!unzip "/content/drive/MyDrive/yoga-poses-dataset" -d /tmp/yogaimg
 
-# Release the webcam and close any open windows
-cap.release()
-cv2.destroyAllWindows()
+data_dir="/tmp/yogaimg/yoga-poses-dataset/DATASET/TRAIN"
+
+import pathlib
+data_dir = pathlib.Path(data_dir)
+data_dir
+
+list(data_dir.glob('*/*.jpg'))[:5]
+
+image_count = len(list(data_dir.glob('*/*.jpg')))
+print(image_count)
+
+TT = list(data_dir.glob('tree/*'))
+TT[:5]
+
+import PIL
+PIL.Image.open(str(TT[1]))
+
+DD = list(data_dir.glob('downdog/*'))
+PIL.Image.open(str(DD[0]))
+
+yoga_poses_img_dict = {
+    'downdog': list(data_dir.glob('downdog/*')),
+    'goddess': list(data_dir.glob('goddess/*')),
+    'plank': list(data_dir.glob('plank/*')),
+    'tree': list(data_dir.glob('tree/*')),
+    'warror2': list(data_dir.glob('warrior2/*')),
+}
+
+yoga_poses_lab_dict = {
+    'downdog': 0,
+    'goddess': 1,
+    'plank':   2,
+    'tree':    3,
+    'warror2': 4,
+}
+
+yoga_poses_img_dict['tree'][:5]
+
+str(yoga_poses_img_dict['tree'][0])
+img = cv2.imread(str(yoga_poses_img_dict['tree'][0]))
+img.shape
+
+cv2.resize(img,(224,224)).shape
+
+X, y = [], []
+
+for pose_name, images in yoga_poses_img_dict.items():
+    for image in images:
+        img = cv2.imread(str(image))
+        resized_img = cv2.resize(img,(224,224))
+        X.append(resized_img)
+        y.append(yoga_poses_lab_dict[pose_name])
+
+X = np.array(X)
+y = np.array(y)
+
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+
+X_train_scaled = X_train / 255
+X_test_scaled = X_test / 255
+
+X[0].shape
+
+IMAGE_SHAPE+(3,)
+
+x0_resized = cv2.resize(X[0], IMAGE_SHAPE)
+x1_resized = cv2.resize(X[1], IMAGE_SHAPE)
+x2_resized = cv2.resize(X[2], IMAGE_SHAPE)
+
+plt.axis('off')
+plt.imshow(X[4])
+
+predicted = classifier.predict(np.array([x0_resized, x1_resized, x2_resized]))
+predicted = np.argmax(predicted, axis=1)
+predicted
+
+
+image_labels[550]
+
+feature_extractor_model = "https://tfhub.dev/google/tf2-preview/mobilenet_v2/feature_vector/4"
+
+pretrained_model_without_top_layer = hub.KerasLayer(
+    feature_extractor_model, input_shape=(224, 224, 3), trainable=False)
+
+num_of_poses = 5
+
+model = tf.keras.Sequential([
+  pretrained_model_without_top_layer,
+  tf.keras.layers.Dense(num_of_poses)
+])
+
+model.summary()
+
+model.compile(
+  optimizer="adam",
+  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+  metrics=['acc'])
+
+model.fit(X_train_scaled, y_train, epochs=5)
+
+model.evaluate(X_test_scaled,y_test)
+
+model.save('yoga_classifier.h5')
+
+yoga_pose = Image.open("www.jpg").resize(IMAGE_SHAPE)
+yoga_pose
+
+yoga_pose = np.array(yoga_pose)/255.0
+yoga_pose.shape
+
+yoga_pose[np.newaxis, ...]
+
+result = model.predict(yoga_pose[np.newaxis, ...])
+result.shape
+
+labs = ['downdog', 'goddess', 'plank', 'tree', 'warror2']
+predicted_label_index = np.argmax(result)
+print(f"{predicted_label_index}:{labs[predicted_label_index]}")

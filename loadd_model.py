@@ -1,4 +1,4 @@
-import tensorflow_hub as hub
-from tensorflow import keras
+from tensorflow.keras.models import load_model
 
-model = keras.models.load_model('Pose_model.h5', custom_objects={'KerasLayer': hub.KerasLayer})
+# Load the model with custom_objects to handle any unknown layers
+model = load_model('lala.h5')

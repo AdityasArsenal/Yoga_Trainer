@@ -1,23 +1,28 @@
-import PIL.Image as Image
-import numpy as np
+import tensorflow as tf
 import tensorflow_hub as hub
+
 from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.models import Sequential
 
-model = keras.models.load_model('Pose_model.h5', custom_objects={'KerasLayer': hub.KerasLayer})
+IMAGE_SHAPE = (224, 224)
 
-IMAGE_SHAPE = (224,224)
+classifier = tf.keras.Sequential([
+    hub.KerasLayer("https://tfhub.dev/google/tf2-preview/mobilenet_v2/classification/4", input_shape=IMAGE_SHAPE+(3,))
+])
 
-yoga_pose = Image.open("www.jpg").resize(IMAGE_SHAPE)
-yoga_pose
+import tensorflow as tf
+import tensorflow_hub as hub
 
-yoga_pose = np.array(yoga_pose)/255.0
-yoga_pose.shape
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.models import Sequential
 
-yoga_pose[np.newaxis, ...]
+IMAGE_SHAPE = (224, 224)
 
-result = model.predict(yoga_pose[np.newaxis, ...])
-result.shape
+classifier = tf.keras.Sequential([
+    hub.KerasLayer("https://tfhub.dev/google/tf2-preview/mobilenet_v2/classification/4", input_shape=IMAGE_SHAPE+(3,))
+])
 
-labs = ['downdog', 'goddess', 'plank', 'tree', 'warror2']
-predicted_label_index = np.argmax(result)
-print(f"{predicted_label_index}:{labs[predicted_label_index]}")
+if __name__ == "__main__":
+    print("hello world")
