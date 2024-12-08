@@ -1,28 +1,22 @@
-import tensorflow as tf
-import tensorflow_hub as hub
+data_dir = r"C:\Users\24adi\OneDrive\Desktop\for yoga\Yoga_Trainer\dataset"
 
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.models import Sequential
+yoga_poses_img_dict = {
+    'downdog': list(data_dir.glob('downdog/*')),
+    'goddess': list(data_dir.glob('goddess/*')),
+    'plank': list(data_dir.glob('plank/*')),
+    'tree': list(data_dir.glob('tree/*')),
+    'warror2': list(data_dir.glob('warrior2/*')),
+}
 
-IMAGE_SHAPE = (224, 224)
+yoga_poses_lab_dict = {
+    'downdog': 0,
+    'goddess': 1,
+    'plank':   2,
+    'tree':    3,
+    'warror2': 4,
+}
 
-classifier = tf.keras.Sequential([
-    hub.KerasLayer("https://tfhub.dev/google/tf2-preview/mobilenet_v2/classification/4", input_shape=IMAGE_SHAPE+(3,))
-])
+ll = yoga_poses_img_dict['tree'][:5]
 
-import tensorflow as tf
-import tensorflow_hub as hub
-
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.models import Sequential
-
-IMAGE_SHAPE = (224, 224)
-
-classifier = tf.keras.Sequential([
-    hub.KerasLayer("https://tfhub.dev/google/tf2-preview/mobilenet_v2/classification/4", input_shape=IMAGE_SHAPE+(3,))
-])
-
-if __name__ == "__main__":
-    print("hello world")
+for i in ll:
+    print(ll)

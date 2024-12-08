@@ -4,7 +4,7 @@ myenv/
 delete_this
 .h5
 imgs/
-datasets/
+dataset/
 Gbook/
 mod/
-
+__pycache__/

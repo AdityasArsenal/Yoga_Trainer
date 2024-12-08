@@ -3,7 +3,7 @@ import mediapipe as mp
 from PIL import Image
 from transformers import MobileNetV2ImageProcessor
 import torch
-from loadd_model import model  # Ensure this imports your trained model
+from rough import model  # Ensure this imports your trained model
 
 # Initialize MediaPipe Pose model
 mp_pose = mp.solutions.pose

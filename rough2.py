@@ -1,30 +1,8 @@
 import numpy as np
+import mediapipe as mp
+from time import time
+import matplotlib.pyplot as plt
+import math
 import cv2
-import PIL.Image as Image
-import os
-import matplotlib.pylab as plt
-from rough import classifier
-
-IMAGE_SHAPE = (224, 224)
-
-yoga_pose = Image.open("w.jpg").resize(IMAGE_SHAPE)
-
-yoga_pose = np.array(yoga_pose)/255.0
-print(f"The dimensions of the image : {yoga_pose.shape}")
-
-yoga_pose[np.newaxis, ...]
-
-result = classifier.predict(yoga_pose[np.newaxis, ...])
-print(f"The result shape : {result.shape}")
-
-predicted_label_index = np.argmax(result)
-
-image_labels = []
-with open("labs.txt", "r") as f:
-    image_labels = f.read().splitlines() 
-image_label = image_labels[predicted_label_index]
-
-print(f"Predicted index : {predicted_label_index} and Label : {image_label}")
-
-
+from loadd_model import model
 
