@@ -1,71 +1,66 @@
+import os
 import cv2
-import mediapipe as mp
-from PIL import Image
-from transformers import MobileNetV2ImageProcessor
-import torch
-from rough import model  # Ensure this imports your trained model
+from keras.models import load_model
+from tensorflow_hub import KerasLayer
+import PIL.Image as Image
+import numpy as np
 
-# Initialize MediaPipe Pose model
-mp_pose = mp.solutions.pose
-pose = mp_pose.Pose(min_detection_confidence=0.1, min_tracking_confidence=0.1)
+# Load the pre-trained model
+model_path = r'C:\Users\24adi\OneDrive\Desktop\for yoga\Yoga_Trainer\yoga_pose_detector.h5'
+if os.path.exists(model_path):
+    model = load_model(model_path, custom_objects={'KerasLayer': KerasLayer})
+else:
+    print("Model file not found!")
 
-# Initialize the MobileNetV2 image processor
-image_processor = MobileNetV2ImageProcessor.from_pretrained('google/mobilenet_v2_1.0_224')
+# Define the image shape the model expects
+img_shape = (224, 224)
 
-# Class names for yoga poses
-names = ['Downdog', 'Goddess', 'Plank', 'Tree', 'Warrior2']
+# List of yoga pose labels
+labs = ['downdog', 'goddess', 'plank', 'tree', 'warror2']
 
-# Start webcam video capture (0 is typically the default camera)
+# Open webcam (use 0 for default camera)
 cap = cv2.VideoCapture(0)
 
+# Check if the webcam is opened correctly
 if not cap.isOpened():
     print("Error: Could not open webcam.")
     exit()
 
-# Start live video feed
+# Continuously capture frames from the webcam
 while True:
     ret, frame = cap.read()
-    
+
     if not ret:
-        print("Error: Failed to capture frame.")
+        print("Failed to grab frame.")
         break
 
-    # Convert the frame (BGR) to RGB and then to a PIL Image for processing
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    image = Image.fromarray(rgb_frame)
+    # Convert frame to PIL Image and resize to match model input shape
+    frame_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    resized_frame = frame_pil.resize(img_shape)
 
-    # Preprocess the image for pose classification
-    inputs = image_processor(images=image, return_tensors="pt")
+    # Preprocess the image (normalize)
+    frame_array = np.array(resized_frame) / 255.0
+    frame_array = frame_array[np.newaxis, ...]
 
-    # Make predictions with the trained model
-    model.eval()  # Set the model to evaluation mode
-    with torch.no_grad():  # Disable gradient calculation
-        outputs = model(**inputs)
+    # Get prediction from the model
+    result = model.predict(frame_array)
+    predicted_label_index = np.argmax(result)
 
-    # Get the predicted class (max logit)
-    predicted_class = torch.argmax(outputs.logits, dim=-1).item()
+    # Display the result on the frame
+    label = labs[predicted_label_index]
+    confidence = result[0][predicted_label_index]
 
-    # Process the image for pose landmarks with MediaPipe
-    results = pose.process(rgb_frame)
+    # Display the prediction label and confidence on the frame
+    cv2.putText(frame, f"Pose: {label} ({confidence*100:.2f}%)", (10, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
-    # Draw pose landmarks
-    if results.pose_landmarks:
-        for landmark in results.pose_landmarks.landmark:
-            # Convert normalized landmark to pixel coordinates
-            h, w, _ = frame.shape
-            x, y = int(landmark.x * w), int(landmark.y * h)
-            cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)  # Draw green circle at each landmark
+    # Show the frame with the prediction
+    cv2.imshow("Yoga Pose Detection", frame)
 
-    # Display the predicted class on the video frame
-    cv2.putText(frame, f"Predicted Pose: {names[predicted_class]}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-    # Show the video frame with pose landmarks
-    cv2.imshow('Yoga Pose Detection with Landmarks', frame)
-
-    # Break the loop if the user presses the 'q' key
+    # Press 'q' to quit the live feed
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# Release the webcam and close any open windows
+# Release the webcam and close all OpenCV windows
 cap.release()
 cv2.destroyAllWindows()
