@@ -1,69 +1,65 @@
-import os
+import mediapipe as mp
 import cv2
-from keras.models import load_model
-from tensorflow_hub import KerasLayer
-import PIL.Image as Image
-import numpy as np
+import time
+from rough1 import fixed_label
 
-# Load the pre-trained model
-model_path = r'C:\Users\24adi\OneDrive\Desktop\for yoga\Yoga_Trainer\yoga_pose_detector.h5'
-if os.path.exists(model_path):
-    model = load_model(model_path, custom_objects={'KerasLayer': KerasLayer})
-else:
-    print("Model file not found!")
+fixed_label = None
 
-# Define the image shape the model expects
-img_shape = (224, 224)
+if fixed_label != None: 
+    
+    # Initialize MediaPipe Pose module
+    mp_pose = mp.solutions.pose
+    pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
-# List of yoga pose labels
-labs = ['downdog', 'goddess', 'plank', 'tree', 'warror2']
+    # Initialize MediaPipe drawing module
+    mp_drawing = mp.solutions.drawing_utils
 
-# Open webcam (use 0 for default camera)
-cap = cv2.VideoCapture(0)
+    # Open webcam
+    cap = cv2.VideoCapture(0)
 
-# Check if the webcam is opened correctly
-if not cap.isOpened():
-    print("Error: Could not open webcam.")
-    exit()
+    # Set the interval for capturing an image (2 seconds)
+    capture_interval = 2  # seconds
+    last_capture_time = time.time()
 
-# Continuously capture frames from the webcam
-while True:
-    ret, frame = cap.read()
+    print(f" your choosen pose {fixed_label}")
 
-    if not ret:
-        print("Failed to grab frame.")
-        break
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-    # Convert frame to PIL Image and resize to match model input shape
-    frame_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-    resized_frame = frame_pil.resize(img_shape)
+        # Convert the BGR image to RGB
+        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    # Preprocess the image (normalize)
-    frame_array = np.array(resized_frame) / 255.0
-    frame_array = frame_array[np.newaxis, ...]
+        # Process the frame to get pose landmarks
+        results = pose.process(image)
 
-    # Get prediction from the model
-    result = model.predict(frame_array)
-    predicted_label_index = np.argmax(result)
+        # Convert the RGB image back to BGR for OpenCV
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-    # Display the result on the frame
-    label = labs[predicted_label_index]
-    confidence = result[0][predicted_label_index]
+        # Get the current time
+        current_time = time.time()
 
-    # Display the prediction label and confidence on the frame
-    cv2.putText(frame, f"Pose: {label} ({confidence*100:.2f}%)", (10, 30),
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        # Capture and process an image every 2 seconds
+        if current_time - last_capture_time >= capture_interval:
+            last_capture_time = current_time  # Update the last capture time
 
-    # Show the frame with the prediction
-    cv2.imshow("Yoga Pose Detection", frame)
+            # Check if landmarks are found
+            if results.pose_landmarks:
+                # Draw landmarks
+                mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
-    # Check if the window is closed or 'q' is pressed to terminate
-    if cv2.getWindowProperty("Yoga Pose Detection", cv2.WND_PROP_VISIBLE) < 1:
-        break
+                # Access and print body landmarks
+                for idx, landmark in enumerate(results.pose_landmarks.landmark):
+                    print(f"Landmark {idx}: ({landmark.x}, {landmark.y}, {landmark.z})")
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        # Display the output
+        cv2.imshow("Body Points Tracking", image)
 
-# Release the webcam and close all OpenCV windows
-cap.release()
-cv2.destroyAllWindows()
+        # Break the loop on pressing 'q'
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    # Release the capture object and close windows
+    cap.release()
+    cv2.destroyAllWindows()
