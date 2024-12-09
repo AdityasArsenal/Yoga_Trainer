@@ -1,65 +1,76 @@
-import mediapipe as mp
+from keras.models import load_model
+from tensorflow_hub import KerasLayer
 import cv2
-import time
-from rough1 import fixed_label
+import numpy as np
+import time  # added to track time
 
-fixed_label = None
+fixed_label = None  # added to store the fixed label
 
-if fixed_label != None: 
-    
-    # Initialize MediaPipe Pose module
-    mp_pose = mp.solutions.pose
-    pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+if __name__ == "__main__":
+    model_path = r"mod\yoga_pose_detector.h5"
 
-    # Initialize MediaPipe drawing module
-    mp_drawing = mp.solutions.drawing_utils
+    model = load_model(model_path, custom_objects ={'KerasLayer' :  KerasLayer})
 
-    # Open webcam
+    img_shape = (224, 224)
+
+    labs = ['downdog', 'goddess', 'plank', 'tree', 'warrior2']
+
     cap = cv2.VideoCapture(0)
 
-    # Set the interval for capturing an image (2 seconds)
-    capture_interval = 2  # seconds
-    last_capture_time = time.time()
+    if not cap.isOpened():
+        print ("please give access to camera")
+        exit()
 
-    print(f" your choosen pose {fixed_label}")
+    last_label = None
+    label_time = time.time()  # added to track time for label
 
-    while cap.isOpened():
+    while True:
         ret, frame = cap.read()
+
         if not ret:
-            break
+            print("sorry i didn't see")
+        
+        # pre-processing
+        resized_frame = cv2.resize(frame, img_shape)
+        initial_frame_array = np.array(resized_frame)
+        normalized_frame_array = initial_frame_array/255.0
+        frame_array = normalized_frame_array[np.newaxis, ...]
 
-        # Convert the BGR image to RGB
-        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        result = model.predict(frame_array, verbose=0)
+        predicted_idx = np.argmax(result)
 
-        # Process the frame to get pose landmarks
-        results = pose.process(image)
+        label = labs[predicted_idx]
 
-        # Convert the RGB image back to BGR for OpenCV
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        if label == last_label:  # Check if the label hasn't changed
+            if time.time() - label_time > 5:  # If the label stays for more than 5 seconds
+                fixed_label = label  # Save the label in fixed_label
+                break
+        else:
+            label_time = time.time()  # Reset the timer if the label changes
+            last_label = label  # Update last_label
 
-        # Get the current time
-        current_time = time.time()
+        cv2.putText(
+            frame, f"Pose detected by model: {label}",
+            (10, 30),
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2,
+            cv2.LINE_AA
+        )
 
-        # Capture and process an image every 2 seconds
-        if current_time - last_capture_time >= capture_interval:
-            last_capture_time = current_time  # Update the last capture time
+        # Show fixed label if it exists
+        if fixed_label:
+            cv2.putText(
+                frame, f"Fixed Pose: {fixed_label}",
+                (10, 70),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2,
+                cv2.LINE_AA
+            )
 
-            # Check if landmarks are found
-            if results.pose_landmarks:
-                # Draw landmarks
-                mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+        cv2.imshow("Pose detector", frame)
 
-                # Access and print body landmarks
-                for idx, landmark in enumerate(results.pose_landmarks.landmark):
-                    print(f"Landmark {idx}: ({landmark.x}, {landmark.y}, {landmark.z})")
-
-        # Display the output
-        cv2.imshow("Body Points Tracking", image)
-
-        # Break the loop on pressing 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-    # Release the capture object and close windows
     cap.release()
     cv2.destroyAllWindows()
+
+print(f"ok lets guide you for {fixed_label} pose")

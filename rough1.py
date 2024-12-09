@@ -1,74 +1,53 @@
-from keras.models import load_model
-from tensorflow_hub import KerasLayer
+import mediapipe as mp
 import cv2
-import numpy as np
-import time  # added to track time
+import time
 
-model_path = r"mod\yoga_pose_detector.h5"
+fixed_label = "goddess"
 
-model = load_model(model_path, custom_objects ={'KerasLayer' :  KerasLayer})
+if fixed_label == "goddess": 
 
-img_shape = (224, 224)
+    mp_pose = mp.solutions.pose
+    pose = mp_pose.Pose(min_detection_confidence=0.4, min_tracking_confidence=0.4)
 
-labs = ['downdog', 'goddess', 'plank', 'tree', 'warrior2']
+    mp_drawing = mp.solutions.drawing_utils
 
-cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0)
 
-if not cap.isOpened():
-    print ("please give access to camera")
-    exit()
+    capture_interval = 2 #sec
+    last_capture_time = time.time()
 
-last_label = None
-label_time = time.time()  # added to track time for label
+    if not cap.isOpened():
+        print("sorry i didnt see")
+        exit()
 
-fixed_label = None  # added to store the fixed label
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-while True:
-    ret, frame = cap.read()
+        #image processing according to model
+        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = pose.process(image)
 
-    if not ret:
-        print("sorry i didn't see")
-    
-    # pre-processing
-    resized_frame = cv2.resize(frame, img_shape)
-    initial_frame_array = np.array(resized_frame)
-    normalized_frame_array = initial_frame_array/255.0
-    frame_array = normalized_frame_array[np.newaxis, ...]
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-    result = model.predict(frame_array, verbose=0)
-    predicted_idx = np.argmax(result)
+        current_time = time.time()
 
-    label = labs[predicted_idx]
+        if current_time - last_capture_time >= capture_interval:
+            last_capture_time = current_time  # Update the last capture time
 
-    if label == last_label:  # Check if the label hasn't changed
-        if time.time() - label_time > 5:  # If the label stays for more than 5 seconds
-            fixed_label = label  # Save the label in fixed_label
-            print(f"ok lets guide you for {fixed_label} pose")
-            exit()
-    else:
-        label_time = time.time()  # Reset the timer if the label changes
-        last_label = label  # Update last_label
+            # Check if landmarks are found
+            if results.pose_landmarks:
+                # Draw landmarks
+                mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
-    cv2.putText(
-        frame, f"Pose detected by model: {label}",
-        (10, 30),
-        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2,
-        cv2.LINE_AA
-    )
+                for idx, landmark in enumerate(results.pose_landmarks.landmark):
+                    print(f"Landmark {idx}: ({landmark.x}, {landmark.y}, {landmark.z})")
 
-    # Show fixed label if it exists
-    if fixed_label:
-        cv2.putText(
-            frame, f"Fixed Pose: {fixed_label}",
-            (10, 70),
-            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2,
-            cv2.LINE_AA
-        )
+        cv2.imshow("Body Points Tracking", image)
 
-    cv2.imshow("Pose detector", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-cap.release()
-cv2.destroyAllWindows()
+    cap.release()
+    cv2.destroyAllWindows()
