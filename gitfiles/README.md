@@ -2,9 +2,9 @@
 
 
 ## This project will help you with your yoga poses, with voice instructions.
-    Yoga Trainer, this project kills the need of a yoga trainer as it helps you to do your yoga poses correctly. This was passible with the help of 2 models
-    * - _[fine tuned - MobileNetV2] (YES I TRAINED IT)
-    * - _[MediaPipe]_
+Yoga Trainer, this project kills the need of a yoga trainer as it helps you to do your yoga poses correctly. This was passible with the help of 2 models
+* - _[fine tuned - MobileNetV2] (YES I TRAINED IT)
+* - _[MediaPipe]_
 
 
 ## How to use 
