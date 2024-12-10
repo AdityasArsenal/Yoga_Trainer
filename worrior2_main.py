@@ -2,7 +2,7 @@ import mediapipe as mp
 import cv2
 import time
 from auio_conv import audd
-from godness_checks import right_hand_check, left_hand_check, right_leg_check, left_leg_check, right_hip_check , left_hip_check
+from worrior2_checks import right_hand_check, left_hand_check, right_leg_check, left_leg_check, right_hip_check , left_hip_check
 
 fixed_label = "goddess"
 print(f"ok lets guide you for {fixed_label} pose")

@@ -27,11 +27,11 @@ def right_hand_check(lm12,lm14,lm16):
 
 
 
-                    if 46 <= angle_deg <= 63:
+                    if 9 <= angle_deg <= 14:
                         return 1
                     else:
                         print("🔴🔴🔴🔴🔴🔴")
-                        instreuction = "hands up And elbow to sholder level"
+                        instreuction = "bring hands to sholder level"
                         audd(instreuction)
                         print(instreuction)
 
@@ -59,11 +59,11 @@ def left_hand_check(lm11,lm13,lm15):
                     print("🟡🟡🟡🟡🟡🟡")
                     print(f"left hand Angle: {angle_deg:.2f} degrees")
 
-                    if 46 <= angle_deg <= 63:
+                    if 55 <= angle_deg <= 67:
                         return 1
                     else:
                         print("🔴🔴🔴🔴🔴🔴")
-                        instreuction = "hands up And elbow to sholder level"
+                        instreuction = "bring hands to your sholder level"
                         audd(instreuction)
                         print(instreuction)
 
@@ -91,11 +91,11 @@ def right_leg_check(lm24,lm26,lm28):
                     print("🟡🟡🟡🟡🟡🟡")
                     print(f"right leg Angle: {angle_deg:.2f} degrees")
 
-                    if 129 <= angle_deg <= 134:
+                    if 55 <= angle_deg <= 67:
                         return 1
                     else:
                         print("🔴🔴🔴🔴🔴🔴")
-                        instreuction = "bit more down"
+                        instreuction = "bend the right leg down"
                         audd(instreuction)
                         print(instreuction)
 
@@ -123,11 +123,11 @@ def left_leg_check(lm23,lm25,lm27):
                     print("🟡🟡🟡🟡🟡🟡")
                     print(f"left leg Angle: {angle_deg:.2f} degrees")
 
-                    if 128 <= angle_deg <= 135:
+                    if 111 <= angle_deg <= 120:
                         return 1
                     else:
                         print("🔴🔴🔴🔴🔴🔴")
-                        instreuction = "bit more down"
+                        instreuction = "strighten your left leg"
                         audd(instreuction)
                         print(instreuction)
 
