@@ -1,10 +1,13 @@
 import mediapipe as mp
 import cv2
 import time
+from rough import get_label
 
-fixed_label = "goddess"
 
-if fixed_label == "goddess": 
+fixed_label = get_label()
+print(f"ok lets guide you for {fixed_label} pose")
+
+if fixed_label != None: 
 
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose(min_detection_confidence=0.4, min_tracking_confidence=0.4)
@@ -42,6 +45,7 @@ if fixed_label == "goddess":
                 mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
                 for idx, landmark in enumerate(results.pose_landmarks.landmark):
+                    print("🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢")
                     print(f"Landmark {idx}: ({landmark.x}, {landmark.y}, {landmark.z})")
 
         cv2.imshow("Body Points Tracking", image)
