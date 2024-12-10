@@ -29,10 +29,17 @@
     * The godness_checks.py uses auio_conv.py to instruct you voically.
     * auio_conv.py uses a tts model pyttsx3
 
+
 ## Additional requirements
-    you will be needing python 3.10.11 to run this repo.
+    * You will be needing python 3.10.11 to run this repo.
+    * All libraries version must be followed stricketly.
 
 
-              personal 
-🔴🔴🔴py -3.10 -m venv myenv🔴🔴🔴
+## known issues 
+    * The project is not compatable with up to date python. recommented version is 3.10.11
+
+
+## personal notes
+    🔴🔴🔴py -3.10 -m venv myenv🔴🔴🔴
+    never flip a image upside down only flip horizontal 
 
