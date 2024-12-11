@@ -9,7 +9,7 @@ Yoga Trainer, this project kills the need of a yoga trainer as it helps you to d
 
 ## How To Use 
   ### The Yoga Trainer
-   ##### just run the main.py
+     just run the main.py
   
      from there the trainer will instruct you 🎉
   ### The Finetuner 
@@ -24,10 +24,12 @@ Yoga Trainer, this project kills the need of a yoga trainer as it helps you to d
 
 ## Working
     * Live_cam_test.py loads a finetuned model (.h5) which you can find in the same dir.
-    * It will return the detected pose.
-    * The godness_checks.py will instruct you how to do the pose (it uses mediapipe).
-    * The godness_checks.py uses auio_conv.py to instruct you vocally.
+    * It will return the detected pose to specific trainer.
+    * let's assume you have choosen goddess pose
+    * The godness_main.py will instruct you how to do the pose (it uses mediapipe).
+    * The godness_main.py uses auio_conv.py to instruct you vocally.
     * Auio_conv.py uses a tts model pyttsx3.
+    * similarly any the poses you choose the code will respond accordingly.
 
 
 ## Additional Requirements
