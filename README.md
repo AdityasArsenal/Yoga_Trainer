@@ -9,8 +9,8 @@ Yoga Trainer, this project kills the need of a yoga trainer as it helps you to d
 
 ## How To Use 
   ### The Yoga Trainer
-     step 1 - go to the live_cam_test.py file run it.
-     step 2 - you show the pic of a pose you want to perform.
+   ##### just run the main.py
+  
      from there the trainer will instruct you 🎉
   ### The Finetuner 
   #### You can train your model with this project as well
