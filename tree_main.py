@@ -2,13 +2,13 @@ import mediapipe as mp
 import cv2
 import time
 from auio_conv import audd
-from godness_checks import right_hand_check, left_hand_check, right_leg_check, left_leg_check, right_hip_check , left_hip_check
+from tree_checks import right_hand_check, left_hand_check, right_leg_check, left_leg_check, right_hip_check , left_hip_check
 
-def instructor_for_goddess_pose(label) : 
+def instructor_for_tree_pose(label):
 
-    fixed_label = "label"
+    fixed_label = label
 
-    if fixed_label == "goddess": 
+    if fixed_label == "tree": 
 
         mp_pose = mp.solutions.pose
         pose = mp_pose.Pose(min_detection_confidence=0.1, min_tracking_confidence=0.5)
@@ -23,7 +23,7 @@ def instructor_for_goddess_pose(label) :
         if not cap.isOpened():
             print("sorry i didnt see")
             exit()
-
+        
         right_hand_flag =  False
         left_hand_flag = False
         right_leg_flag = False

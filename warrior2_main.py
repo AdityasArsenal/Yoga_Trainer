@@ -2,20 +2,13 @@ import mediapipe as mp
 import cv2
 import time
 from auio_conv import audd
-from godness_checks import right_hand_check, left_hand_check, right_leg_check, left_leg_check, right_hip_check , left_hip_check
+from worrior2_checks import right_hand_check, left_hand_check, right_leg_check, left_leg_check, right_hip_check , left_hip_check
 
-def inst_for_goddess():
-    fixed_label = "goddess"
-    print(f"ok lets guide you for {fixed_label} pose")
+def instructor_for_warrior2_pose(label):
 
-    right_hand_flag =  False
-    left_hand_flag = False
-    right_leg_flag = False
-    left_leg_flag = False
-    right_hip_flag = False
-    left_hip_flag = False
+    fixed_label = label
 
-    if fixed_label == "goddess": 
+    if fixed_label == "warrior2": 
 
         mp_pose = mp.solutions.pose
         pose = mp_pose.Pose(min_detection_confidence=0.1, min_tracking_confidence=0.5)
@@ -30,6 +23,13 @@ def inst_for_goddess():
         if not cap.isOpened():
             print("sorry i didnt see")
             exit()
+        
+        right_hand_flag =  False
+        left_hand_flag = False
+        right_leg_flag = False
+        left_leg_flag = False
+        right_hip_flag = False
+        left_hip_flag = False
 
         while True:
             ret, frame = cap.read()
@@ -116,9 +116,11 @@ def inst_for_goddess():
                         else:
                             continue
 
-                    if left_hand_flag:
+                    if left_leg_flag:
+                        audd("well done")
                         audd("great work keep up")
-                        print("well done")
+
+                        exit()
 
             cv2.imshow("Body Points Tracking", image)
 
