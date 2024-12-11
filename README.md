@@ -55,6 +55,11 @@ Yoga Trainer, this project kills the need of a yoga trainer as it helps you to d
     Epoch 4/5 - loss: 0.1329 - acc: 0.9781
     Epoch 5/5 - loss: 0.1037 - acc: 0.9887
 
+## Ux
+    * Project has a built in voice instructions.
+    * As it is dependent on the finetuned-mobilenetV2 model it can smoothly run on any phone.
+    * The camera can be set at a distance and the user can perform yoga with ease, while lestening to the instructions.
+
 ## Additional Requirements
     * You will be needing python 3.10.11 to run this repo.
     * All libraries version must be followed strictly.
