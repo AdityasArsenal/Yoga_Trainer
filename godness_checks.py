@@ -127,7 +127,7 @@ def left_leg_check(lm23,lm25,lm27):
                         return 1
                     else:
                         print("🔴🔴🔴🔴🔴🔴")
-                        instreuction = "bit more down"
+                        instreuction = "go a bit more down"
                         audd(instreuction)
                         print(instreuction)
 
@@ -159,7 +159,7 @@ def right_hip_check(lm12,lm24,lm26):
                         return 1
                     else:
                         print("🔴🔴🔴🔴🔴🔴")
-                        print("bit more down")
+                        print("go a bit more down")
 
 def left_hip_check(lm11,lm23,lm25):
      # Get 3D coordinates

@@ -2,11 +2,17 @@ from pose import get_pose
 from warrior2_main import instructor_for_warrior2_pose
 from goddess_main import instructor_for_goddess_pose
 from tree_main import instructor_for_tree_pose
+from auio_conv import audd
 
 labs = ['downdog', 'goddess', 'plank', 'tree', 'warrior2']
 
+requestt = "please show me the pose you want to perform"
+
+audd(requestt)
 lab = get_pose()
-print(lab)
+
+pose = f"ok let's perform {lab} pose"
+audd(pose)
 
 if lab == "downdog" :
     print("ok in the coddddddddddddddd")

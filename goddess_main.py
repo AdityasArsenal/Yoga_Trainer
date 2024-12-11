@@ -6,7 +6,7 @@ from godness_checks import right_hand_check, left_hand_check, right_leg_check, l
 
 def instructor_for_goddess_pose(label) : 
 
-    fixed_label = "label"
+    fixed_label = label
 
     if fixed_label == "goddess": 
 
