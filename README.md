@@ -31,6 +31,29 @@ Yoga Trainer, this project kills the need of a yoga trainer as it helps you to d
     * Auio_conv.py uses a tts model pyttsx3.
     * similarly any the poses you choose the code will respond accordingly.
 
+## Dataset Used (https://www.kaggle.com/datasets/niharika41298/yoga-poses-dataset)
+    * I have picked this dataset from kaggle.
+    * Then cleaned it as it was having diffrent versions of same pose under same label.
+    * Added more synthatic data to increase the dataset weightage and help the model understand better.
+    * The code used for synthatic data generation can be found under tran_n_test folder.
+
+## Model Architecture
+    * This project uses mobilenetv2 as it's base architecture, which intern uses Neural Networks below the hood.
+    * This model trained on imagenet dataset, hence has greate understanding of curves and borders.
+    * Particularly choose this model because it's light-weight for mobile usage.
+    * InPut images size required 224 x 224.
+    * Even though it is a robust model it needs to be fine tuned for specific useage like Yoga Pose detection.
+
+## Fine-Tuned Model
+    * My model retains the initial weights of MobileNetV2, replaces the classifier layer, and adds a custom layer for pose detection.
+    * Accuracy 98%.
+  #### Performance
+                  Epoch = 5
+    Epoch 1/5 - loss: 0.8835 - acc: 0.6875
+    Epoch 2/5 - loss: 0.2899 - acc: 0.9394
+    Epoch 3/5 - loss: 0.1832 - acc: 0.9631
+    Epoch 4/5 - loss: 0.1329 - acc: 0.9781
+    Epoch 5/5 - loss: 0.1037 - acc: 0.9887
 
 ## Additional Requirements
     * You will be needing python 3.10.11 to run this repo.
